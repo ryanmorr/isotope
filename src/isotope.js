@@ -20,8 +20,11 @@ export function data(value = null, mutator = null) {
         return oldValue;
     };
     callback[DATA] = true;
-    callback.subscribe = (fn) => {
+    callback.subscribe = (fn, immediate = false) => {
         subscribers.push(fn);
+        if (immediate === true) {
+            fn(oldValue, null);
+        }
         return () => {
             const index = subscribers.indexOf(fn);
             if (index !== -1) {

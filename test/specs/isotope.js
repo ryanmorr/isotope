@@ -74,6 +74,18 @@ describe('isotope', () => {
         expect(spy2.args[1][1]).to.equal('bar');
     });
 
+    it('should immediately call a subscriber when provided true as an optional second argument', () => {
+        const foo = data('foo');
+
+        const spy = sinon.spy();
+
+        foo.subscribe(spy, true);
+
+        expect(spy.callCount).to.equal(1);
+        expect(spy.args[0][0]).to.equal('foo');
+        expect(spy.args[0][1]).to.equal(null);
+    });
+
     it('should unsubscribe to be notified of data changes', () => {
         const foo = data('foo');
 
