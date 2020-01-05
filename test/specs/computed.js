@@ -176,4 +176,19 @@ describe('computed', () => {
         expect(spy2.callCount).to.equal(2);
         expect(spy3.callCount).to.equal(4);
     });
+
+    it('should handle dynamic dependencies', () => {
+		const foo = data(1);
+		const bar = data(2);
+		const toggle = data(false);
+		const value = computed(() => toggle() ? foo() : bar());
+        
+        expect(value()).to.equal(2);
+
+		toggle(true);
+		expect(value()).to.equal(1);
+
+		toggle(false);
+		expect(value()).to.equal(2);
+	});
 });
