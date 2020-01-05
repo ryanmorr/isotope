@@ -32,7 +32,7 @@ describe('computed', () => {
         expect(foo()).to.equal('foo');
     });
 
-    it('should automatically update if depending data changes', () => {
+    it('should automatically update if a dependency changes', () => {
         const firstName = data('John');
         const lastName = data('Doe');
         const fullName = computed(() => `${firstName()} ${lastName()}`);
@@ -190,7 +190,8 @@ describe('computed', () => {
         const lastName = data('Doe');
         const fullName = computed(() => `${firstName()} ${lastName()}`);
 
-        const spy = sinon.spy(() => {
+        const spy = sinon.spy((name) => {
+            expect(fullName()).to.equal(name);
             expect(fullName()).to.equal('Jane Doe');
         });
 
