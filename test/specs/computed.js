@@ -200,4 +200,47 @@ describe('computed', () => {
         firstName('Jane');
         expect(spy.callCount).to.equal(1);
     });
+
+    it('should support multiple computed callbacks', () => {
+        const foo = data('a');
+        const bar = data('b');
+        const baz = data('c');
+        const qux = data('d');
+
+        const first = computed(() => foo() + bar() + baz());
+        const second = computed(() => foo() + qux());
+
+        const firstSpy = sinon.spy();
+        const secondSpy = sinon.spy();
+
+        first.subscribe(firstSpy);
+        second.subscribe(secondSpy);
+
+        expect(first()).to.equal('abc');
+        expect(second()).to.equal('ad');
+
+        foo('x');
+        expect(first()).to.equal('xbc');
+        expect(second()).to.equal('xd');
+        expect(firstSpy.callCount).to.equal(1);
+        expect(secondSpy.callCount).to.equal(1);
+
+        bar('y');
+        expect(first()).to.equal('xyc');
+        expect(second()).to.equal('xd');
+        expect(firstSpy.callCount).to.equal(2);
+        expect(secondSpy.callCount).to.equal(1);
+
+        baz('z');
+        expect(first()).to.equal('xyz');
+        expect(second()).to.equal('xd');
+        expect(firstSpy.callCount).to.equal(3);
+        expect(secondSpy.callCount).to.equal(1);
+
+        qux('w');
+        expect(first()).to.equal('xyz');
+        expect(second()).to.equal('xw');
+        expect(firstSpy.callCount).to.equal(3);
+        expect(secondSpy.callCount).to.equal(2);
+    });
 });
