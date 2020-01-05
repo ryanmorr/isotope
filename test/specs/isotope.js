@@ -45,7 +45,7 @@ describe('isotope', () => {
         expect(foo()).to.equal('BAR');
     });
 
-    it('should support observing for changes of the value', () => {
+    it('should subscribe to be notified of data changes', () => {
         const foo = data('foo');
 
         const spy1 = sinon.spy();
@@ -72,5 +72,22 @@ describe('isotope', () => {
         expect(spy2.callCount).to.equal(2);
         expect(spy2.args[1][0]).to.equal('baz');
         expect(spy2.args[1][1]).to.equal('bar');
+    });
+
+    it('should unsubscribe to be notified of data changes', () => {
+        const foo = data('foo');
+
+        const spy = sinon.spy();
+
+        const unsubscribe = foo.subscribe(spy);
+
+        foo('bar');
+
+        expect(spy.callCount).to.equal(1);
+        
+        unsubscribe();
+        foo('baz');
+
+        expect(spy.callCount).to.equal(1);
     });
 });

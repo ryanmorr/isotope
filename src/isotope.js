@@ -20,6 +20,14 @@ export function data(value = null, mutator = null) {
         return oldValue;
     };
     callback[DATA] = true;
-    callback.subscribe = (fn) => subscribers.push(fn);
+    callback.subscribe = (fn) => {
+        subscribers.push(fn);
+        return () => {
+            const index = subscribers.indexOf(fn);
+            if (index !== -1) {
+                subscribers.splice(index, 1);
+            }
+        };
+    };
     return callback;
 }
