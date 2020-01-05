@@ -34,8 +34,12 @@ export function data(value = null, mutator = null) {
     let oldValue = setValue(value, mutator);
     return observable(oldValue, (emit, subscribe) => (...args) => {
         if (args.length === 1) {
+            const newValue = args[0];
+            if (newValue === oldValue && (newValue === null || typeof newValue !== 'object')) {
+                return oldValue;
+            }
             const tempOldValue = oldValue;
-            oldValue = setValue(args[0], mutator);
+            oldValue = setValue(newValue, mutator);
             emit((fn) => fn(oldValue, tempOldValue));
             return oldValue;
         } else {

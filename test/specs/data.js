@@ -167,4 +167,52 @@ describe('data', () => {
         foo('bar');
         expect(spy.callCount).to.equal(1);
     });
+
+    it('should not update if the new value is a primitive and equal to the old value', () => {
+        const foo = data(1);
+        
+		const spy = sinon.spy();
+        foo.subscribe(spy);
+
+		expect(foo(1)).to.equal(1);
+		expect(spy.callCount).to.equal(0);
+
+		foo('foo');
+		expect(spy.callCount).to.equal(1);
+		expect(foo('foo')).to.equal('foo');
+		expect(spy.callCount).to.equal(1);
+
+        foo(true);
+        expect(spy.callCount).to.equal(2);
+        expect(foo(true)).to.equal(true);
+        expect(spy.callCount).to.equal(2);
+
+        foo(null);
+        expect(spy.callCount).to.equal(3);
+        expect(foo(null)).to.equal(null);
+        expect(spy.callCount).to.equal(3);
+
+        foo(undefined);
+        expect(spy.callCount).to.equal(4);
+        expect(foo(undefined)).to.equal(undefined);
+        expect(spy.callCount).to.equal(4);
+    });
+    
+    it('should allow updates if the new value is equal to the old value but not a primitive', () => {
+        const array = [];
+        const object = {};
+
+        const foo = data(array);
+        
+		const spy = sinon.spy();
+        foo.subscribe(spy);
+
+		expect(foo(array)).to.equal(array);
+		expect(spy.callCount).to.equal(1);
+
+		foo(object);
+		expect(spy.callCount).to.equal(2);
+		expect(foo(object)).to.equal(object);
+		expect(spy.callCount).to.equal(3);
+	});
 });
