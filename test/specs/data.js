@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { data, isData } from '../../src/isotope';
+import { data, isObservable } from '../../src/isotope';
 
 describe('data', () => {
     it('should return a function', () => {
@@ -13,8 +13,8 @@ describe('data', () => {
         const fn = () => null;
         const foo = data();
 
-        expect(isData(fn)).to.equal(false);
-        expect(isData(foo)).to.equal(true);
+        expect(isObservable(fn)).to.equal(false);
+        expect(isObservable(foo)).to.equal(true);
     });
 
     it('should return a default value of null if invoked with no arguments', () => {

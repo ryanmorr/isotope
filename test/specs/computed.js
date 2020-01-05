@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { data, computed, isData } from '../../src/isotope';
+import { data, computed, isObservable } from '../../src/isotope';
 
 describe('computed', () => {
     it('should return a function', () => {
@@ -13,8 +13,8 @@ describe('computed', () => {
         const fn = () => null;
         const foo = computed(fn);
 
-        expect(isData(fn)).to.equal(false);
-        expect(isData(foo)).to.equal(true);
+        expect(isObservable(fn)).to.equal(false);
+        expect(isObservable(foo)).to.equal(true);
     });
 
     it('should compute a value', () => {

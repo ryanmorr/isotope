@@ -1,5 +1,5 @@
 const tracker = [];
-const DATA = Symbol('data');
+const OBSERVABLE = Symbol('observable');
 
 function setValue(value, mutator) {
     return (typeof mutator === 'function') ? mutator(value) : value;
@@ -25,7 +25,7 @@ function observable(value, fn) {
         subscribers.slice().forEach(fn);
     };
     const callback = fn(emit, subscribe);
-    callback[DATA] = true;
+    callback[OBSERVABLE] = true;
     callback.subscribe = subscribe;
     return callback;
 }
@@ -74,6 +74,6 @@ export function computed(fn) {
     });
 }
 
-export function isData(obj) {
-    return typeof obj === 'function' && DATA in obj;
+export function isObservable(obj) {
+    return typeof obj === 'function' && OBSERVABLE in obj;
 }
