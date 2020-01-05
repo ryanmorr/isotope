@@ -74,6 +74,20 @@ describe('data', () => {
         expect(spy2.args[1][1]).to.equal('bar');
     });
 
+    it('should not allow the same function to subscribe more than once', () => {
+        const foo = data('foo');
+
+        const spy = sinon.spy();
+
+        foo.subscribe(spy);
+        foo.subscribe(spy);
+        foo.subscribe(spy);
+
+        foo('baz');
+
+        expect(spy.callCount).to.equal(1);
+    });
+
     it('should immediately call a subscriber when provided true as an optional second argument', () => {
         const foo = data('foo');
 

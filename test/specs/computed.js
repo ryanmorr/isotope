@@ -84,6 +84,24 @@ describe('computed', () => {
         expect(spy2.args[1][1]).to.equal('Joe Doe');
     });
 
+    it('should not allow the same function to subscribe more than once', () => {
+        const firstName = data('John');
+        const lastName = data('Doe');
+        const fullName = computed(() => `${firstName()} ${lastName()}`);
+
+        const spy = sinon.spy();
+
+        fullName.subscribe(spy);
+        fullName.subscribe(spy);
+        fullName.subscribe(spy);
+
+        firstName('Jane');
+        expect(spy.callCount).to.equal(1);
+
+        lastName('Jones');
+        expect(spy.callCount).to.equal(2);
+    });
+
     it('should immediately call a subscriber when provided true as an optional second argument', () => {
         const firstName = data('John');
         const lastName = data('Doe');
