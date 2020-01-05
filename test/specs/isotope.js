@@ -90,4 +90,42 @@ describe('isotope', () => {
 
         expect(spy.callCount).to.equal(1);
     });
+
+    it('should not interrupt subscriber invocation sequence ', () => {
+        const foo = data('foo');
+
+        let unsubscribe;
+        let doUnsubscribe = false;
+
+        const spy1 = sinon.spy();
+        const spy2 = sinon.spy(() => {
+            if (doUnsubscribe) {
+                unsubscribe();
+            }
+        });
+        const spy3 = sinon.spy();
+
+        foo.subscribe(spy1);
+        unsubscribe = foo.subscribe(spy2);
+        foo.subscribe(spy3);
+
+        foo('bar');
+
+        expect(spy1.callCount).to.equal(1);
+        expect(spy2.callCount).to.equal(1);
+        expect(spy3.callCount).to.equal(1);
+        
+        doUnsubscribe = true;
+        foo('baz');
+
+        expect(spy1.callCount).to.equal(2);
+        expect(spy2.callCount).to.equal(2);
+        expect(spy3.callCount).to.equal(2);
+
+        foo('qux');
+
+        expect(spy1.callCount).to.equal(3);
+        expect(spy2.callCount).to.equal(2);
+        expect(spy3.callCount).to.equal(3);
+    });
 });

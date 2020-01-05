@@ -14,7 +14,7 @@ export function data(value = null, mutator = null) {
     const callback = (...args) => {
         if (args.length === 1) {
             let newValue = setValue(args[0], mutator);
-            subscribers.forEach((fn) => fn(newValue, oldValue));
+            subscribers.slice().forEach((fn) => fn(newValue, oldValue));
             oldValue = newValue;
         }
         return oldValue;
