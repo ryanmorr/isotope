@@ -9,7 +9,7 @@ describe('data', () => {
         expect(foo).to.be.a('function');
     });
 
-    it('should return true for data callbacks', () => {
+    it('should return true for data observables', () => {
         const fn = () => null;
         const foo = data();
 
@@ -45,7 +45,7 @@ describe('data', () => {
         expect(foo()).to.equal('BAR');
     });
 
-    it('should subscribe to be notified of data changes', () => {
+    it('should add subscribers to be notified when the value changes', () => {
         const foo = data('foo');
 
         const spy1 = sinon.spy();
@@ -100,7 +100,7 @@ describe('data', () => {
         expect(spy.args[0][1]).to.equal(null);
     });
 
-    it('should unsubscribe to be notified of data changes', () => {
+    it('should remove a subscriber', () => {
         const foo = data('foo');
 
         const spy = sinon.spy();
@@ -117,7 +117,7 @@ describe('data', () => {
         expect(spy.callCount).to.equal(1);
     });
 
-    it('should not interrupt subscriber invocation sequence ', () => {
+    it('should allow subscribers to remove themselves without disrupting others', () => {
         const foo = data('foo');
 
         let unsubscribe;

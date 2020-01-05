@@ -9,7 +9,7 @@ describe('computed', () => {
         expect(foo).to.be.a('function');
     });
 
-    it('should return true for computed callbacks', () => {
+    it('should return true for computed observables', () => {
         const fn = () => null;
         const foo = computed(fn);
 
@@ -17,7 +17,7 @@ describe('computed', () => {
         expect(isObservable(foo)).to.equal(true);
     });
 
-    it('should compute a value', () => {
+    it('should immediately compute a value', () => {
         const firstName = data('John');
         const lastName = data('Doe');
         const fullName = computed(() => `${firstName()} ${lastName()}`);
@@ -46,7 +46,7 @@ describe('computed', () => {
         expect(fullName()).to.equal('Jane Jones');
     });
 
-    it('should subscribe to be notified of data changes', () => {
+    it('should add subscribers to be notified when the value changes', () => {
         const firstName = data('John');
         const lastName = data('Doe');
         const fullName = computed(() => `${firstName()} ${lastName()}`);
@@ -109,7 +109,7 @@ describe('computed', () => {
         expect(spy.args[0][1]).to.equal(null);
     });
 
-    it('should unsubscribe to be notified of data changes', () => {
+    it('should remove a subscriber', () => {
         const firstName = data('John');
         const lastName = data('Doe');
         const fullName = computed(() => `${firstName()} ${lastName()}`);
@@ -129,7 +129,7 @@ describe('computed', () => {
         expect(spy.callCount).to.equal(1);
     });
 
-    it('should not interrupt subscriber invocation sequence ', () => {
+    it('should allow subscribers to remove themselves without disrupting others', () => {
         const firstName = data('John');
         const lastName = data('Doe');
         const fullName = computed(() => `${firstName()} ${lastName()}`);
@@ -201,7 +201,7 @@ describe('computed', () => {
         expect(spy.callCount).to.equal(1);
     });
 
-    it('should support multiple computed callbacks', () => {
+    it('should support multiple computed observables', () => {
         const foo = data('a');
         const bar = data('b');
         const baz = data('c');
