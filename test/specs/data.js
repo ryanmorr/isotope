@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { data, isData } from '../../src/isotope';
 
-describe('isotope', () => {
+describe('data', () => {
     it('should return a function', () => {
         const foo = data();
 
