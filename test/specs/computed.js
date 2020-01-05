@@ -190,5 +190,20 @@ describe('computed', () => {
 
 		toggle(false);
 		expect(value()).to.equal(2);
-	});
+    });
+    
+    it('should return the new value within a subscriber', () => {
+        const firstName = data('John');
+        const lastName = data('Doe');
+        const fullName = computed(() => `${firstName()} ${lastName()}`);
+
+        const spy = sinon.spy(() => {
+            expect(fullName()).to.equal('Jane Doe')
+        });
+
+        fullName.subscribe(spy);
+
+        firstName('Jane');
+        expect(spy.callCount).to.equal(1);
+    });
 });

@@ -52,9 +52,10 @@ export function computed(fn) {
     let oldValue = null, emit;
     const callback = () => {
         tracker.push(callback);
-        let newValue, error;
+        let error;
+        const tempOldValue = oldValue;
         try {
-            newValue = fn();
+            oldValue = fn();
         } catch (e) {
             error = e;
         }
@@ -63,9 +64,8 @@ export function computed(fn) {
             throw error;
         }
         if (emit) {
-            emit((fn) => fn(newValue, oldValue));
+            emit((fn) => fn(oldValue, tempOldValue));
         }
-        oldValue = newValue;
     };
     callback();
     return observable(oldValue, (emitter) => {

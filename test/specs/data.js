@@ -154,4 +154,17 @@ describe('data', () => {
         expect(spy2.callCount).to.equal(2);
         expect(spy3.callCount).to.equal(3);
     });
+
+    it('should return the new value within a subscriber', () => {
+        const foo = data('foo');
+
+        const spy = sinon.spy(() => {
+            expect(foo()).to.equal('bar')
+        });
+
+        foo.subscribe(spy);
+
+        foo('bar');
+        expect(spy.callCount).to.equal(1);
+    });
 });
