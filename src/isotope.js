@@ -9,16 +9,17 @@ export function isData(obj) {
 }
 
 export function data(value = null, mutator = null) {
-    value = setValue(value, mutator);
-    const listeners = [];
+    let oldValue = setValue(value, mutator);
+    const subscribers = [];
     const callback = (...args) => {
         if (args.length === 1) {
-            value = setValue(args[0], mutator);
-            listeners.forEach((fn) => fn(value));
+            let newValue = setValue(args[0], mutator);
+            subscribers.forEach((fn) => fn(newValue, oldValue));
+            oldValue = newValue;
         }
-        return value;
+        return oldValue;
     };
     callback[DATA] = true;
-    callback.subscribe = (fn) => listeners.push(fn);
+    callback.subscribe = (fn) => subscribers.push(fn);
     return callback;
 }

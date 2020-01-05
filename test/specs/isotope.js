@@ -58,15 +58,19 @@ describe('isotope', () => {
 
         expect(spy1.callCount).to.equal(1);
         expect(spy1.args[0][0]).to.equal('bar');
+        expect(spy1.args[0][1]).to.equal('foo');
         expect(spy2.callCount).to.equal(1);
         expect(spy2.args[0][0]).to.equal('bar');
+        expect(spy2.args[0][1]).to.equal('foo');
         expect(spy1.calledBefore(spy2)).to.equal(true);
         
         foo('baz');
 
         expect(spy1.callCount).to.equal(2);
         expect(spy1.args[1][0]).to.equal('baz');
+        expect(spy1.args[1][1]).to.equal('bar');
         expect(spy2.callCount).to.equal(2);
         expect(spy2.args[1][0]).to.equal('baz');
+        expect(spy2.args[1][1]).to.equal('bar');
     });
 });
