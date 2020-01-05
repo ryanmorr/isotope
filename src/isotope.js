@@ -31,35 +31,35 @@ function observable(value, fn) {
 }
 
 export function data(value = null, mutator = null) {
-    let oldValue = setValue(value, mutator);
-    return observable(oldValue, (emit, subscribe) => (...args) => {
+    value = setValue(value, mutator);
+    return observable(value, (emit, subscribe) => (...args) => {
         if (args.length === 1) {
             const newValue = args[0];
-            if (newValue === oldValue && (newValue === null || typeof newValue !== 'object')) {
-                return oldValue;
+            if (newValue === value && (newValue === null || typeof newValue !== 'object')) {
+                return value;
             }
-            const tempOldValue = oldValue;
-            oldValue = setValue(newValue, mutator);
-            emit((fn) => fn(oldValue, tempOldValue));
-            return oldValue;
+            const oldValue = value;
+            value = setValue(newValue, mutator);
+            emit((fn) => fn(value, oldValue));
+            return value;
         } else {
             const fn = tracker[tracker.length - 1];
             if (fn) {
                 subscribe(fn);
             }
-            return oldValue;
+            return value;
         }
     });
 }
 
 export function computed(fn) {
-    let oldValue = null, emit;
+    let value = null, emit;
     const callback = () => {
         tracker.push(callback);
         let error;
-        const tempOldValue = oldValue;
+        const oldValue = value;
         try {
-            oldValue = fn();
+            value = fn();
         } catch (e) {
             error = e;
         }
@@ -68,13 +68,13 @@ export function computed(fn) {
             throw error;
         }
         if (emit) {
-            emit((fn) => fn(oldValue, tempOldValue));
+            emit((fn) => fn(value, oldValue));
         }
     };
     callback();
-    return observable(oldValue, (emitter) => {
+    return observable(value, (emitter) => {
         emit = emitter;
-        return () => oldValue;
+        return () => value;
     });
 }
 
