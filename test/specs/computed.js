@@ -42,16 +42,9 @@ describe('computed', () => {
         firstName('Jane');
         expect(fullName()).to.equal('Jane Doe');
 
-        lastName('Jones')
+        lastName('Jones');
         expect(fullName()).to.equal('Jane Jones');
     });
-
-
-
-
-
-
-
 
     it('should subscribe to be notified of data changes', () => {
         const firstName = data('John');
@@ -170,7 +163,7 @@ describe('computed', () => {
         expect(spy3.callCount).to.equal(2);
 
         firstName('Jane');
-        lastName('Johnson')
+        lastName('Johnson');
 
         expect(spy1.callCount).to.equal(4);
         expect(spy2.callCount).to.equal(2);
@@ -198,7 +191,7 @@ describe('computed', () => {
         const fullName = computed(() => `${firstName()} ${lastName()}`);
 
         const spy = sinon.spy(() => {
-            expect(fullName()).to.equal('Jane Doe')
+            expect(fullName()).to.equal('Jane Doe');
         });
 
         fullName.subscribe(spy);

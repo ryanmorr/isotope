@@ -159,7 +159,7 @@ describe('data', () => {
         const foo = data('foo');
 
         const spy = sinon.spy(() => {
-            expect(foo()).to.equal('bar')
+            expect(foo()).to.equal('bar');
         });
 
         foo.subscribe(spy);
