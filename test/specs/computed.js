@@ -243,4 +243,50 @@ describe('computed', () => {
         expect(firstSpy.callCount).to.equal(3);
         expect(secondSpy.callCount).to.equal(2);
     });
+
+    it('should handle errors', () => {
+		const foo = data('a');
+        const bar = data('b');
+        const error = new Error();
+
+        const first = computed(() => foo() + bar());
+
+        let doError = false;
+        const second = computed(() => {
+            if (doError) {
+                throw error;
+            }
+            return bar() + foo();
+        });
+
+        const firstSpy = sinon.spy();
+        const secondSpy = sinon.spy();
+
+        first.subscribe(firstSpy);
+        second.subscribe(secondSpy);
+
+        expect(first()).to.equal('ab');
+        expect(second()).to.equal('ba');
+
+        foo('x');
+        expect(first()).to.equal('xb');
+        expect(second()).to.equal('bx');
+        expect(firstSpy.callCount).to.equal(1);
+        expect(secondSpy.callCount).to.equal(1);
+
+        doError = true;
+        expect(() => bar('y')).to.throw(error);
+        expect(first()).to.equal('xy');
+        expect(second()).to.equal('bx');
+        expect(firstSpy.callCount).to.equal(2);
+        expect(secondSpy.callCount).to.equal(1);
+
+        doError = false;
+        foo('1');
+        bar('2');
+        expect(first()).to.equal('12');
+        expect(second()).to.equal('21');
+        expect(firstSpy.callCount).to.equal(4);
+        expect(secondSpy.callCount).to.equal(3);
+    });
 });
