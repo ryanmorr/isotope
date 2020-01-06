@@ -1,10 +1,6 @@
 const tracker = [];
 const OBSERVABLE = Symbol('observable');
 
-function setValue(value, mutator) {
-    return (typeof mutator === 'function') ? mutator(value) : value;
-}
-
 function observable(value, fn) {
     const subscribers = [];
     const subscribe = (fn, immediate = false) => {
@@ -30,8 +26,7 @@ function observable(value, fn) {
     return callback;
 }
 
-export function data(value = null, mutator = null) {
-    value = setValue(value, mutator);
+export function data(value = null) {
     return observable(value, (emit, subscribe) => (...args) => {
         if (args.length === 1) {
             const newValue = args[0];
@@ -39,7 +34,7 @@ export function data(value = null, mutator = null) {
                 return value;
             }
             const oldValue = value;
-            value = setValue(newValue, mutator);
+            value = newValue;
             emit((fn) => fn(value, oldValue));
             return value;
         } else {

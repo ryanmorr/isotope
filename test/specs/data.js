@@ -37,14 +37,6 @@ describe('data', () => {
         expect(foo()).to.equal('bar');
     });
 
-    it('should support a mutator function as an optional second argument', () => {
-        const foo = data('foo', (str) => str.toUpperCase());
-
-        expect(foo()).to.equal('FOO');
-        expect(foo('bar')).to.equal('BAR');
-        expect(foo()).to.equal('BAR');
-    });
-
     it('should add subscribers to be notified when the value changes', () => {
         const foo = data('foo');
 
