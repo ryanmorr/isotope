@@ -79,5 +79,5 @@ export function computed(fn) {
 }
 
 export function isObservable(obj) {
-    return typeof obj === 'function' && OBSERVABLE in obj;
+    return typeof obj === 'function' && obj[OBSERVABLE] === true;
 }
