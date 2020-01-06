@@ -2,22 +2,22 @@ const tracker = [];
 const OBSERVABLE = Symbol('observable');
 
 function addDependency(subscribe) {
-    const fn = tracker[tracker.length - 1];
-    if (fn) {
-        subscribe(fn);
+    const callback = tracker[tracker.length - 1];
+    if (callback) {
+        subscribe(callback);
     }
 }
 
-function observable(value, fn) {
+function observable(value, setup) {
     const subscribers = [];
-    const subscribe = (fn, immediate = false) => {
-        if (!subscribers.includes(fn)) {
-            subscribers.push(fn);
+    const subscribe = (subscriber, immediate = false) => {
+        if (!subscribers.includes(subscriber)) {
+            subscribers.push(subscriber);
             if (immediate === true) {
-                fn(value, null);
+                subscriber(value, null);
             }
             return () => {
-                const index = subscribers.indexOf(fn);
+                const index = subscribers.indexOf(subscriber);
                 if (index !== -1) {
                     subscribers.splice(index, 1);
                 }
@@ -25,16 +25,16 @@ function observable(value, fn) {
         }
     };
     const emit = (newValue, oldValue) => {
-        subscribers.slice().forEach((fn) => fn(newValue, oldValue));
+        subscribers.slice().forEach((subscriber) => subscriber(newValue, oldValue));
     };
-    const callback = fn(emit, subscribe);
+    const callback = setup(subscribe, emit);
     callback[OBSERVABLE] = true;
     callback.subscribe = subscribe;
     return callback;
 }
 
 export function data(value = null) {
-    return observable(value, (emit, subscribe) => (...args) => {
+    return observable(value, (subscribe, emit) => (...args) => {
         if (args.length === 1) {
             const newValue = args[0];
             if (newValue === value && (newValue === null || typeof newValue !== 'object')) {
@@ -51,20 +51,17 @@ export function data(value = null) {
     });
 }
 
-export function computed(fn) {
-    let value = null, emit;
-    const callback = () => {
-        tracker.push(callback);
-        const oldValue = value;
-        value = fn();
-        tracker.pop();
-        if (emit) {
+export function computed(computedFn) {
+    let value = computedFn();
+    return observable(value, (subscribe, emit) => {
+        const callback = () => {
+            tracker.push(callback);
+            const oldValue = value;
+            value = computedFn();
+            tracker.pop();
             emit(value, oldValue);
-        }
-    };
-    callback();
-    return observable(value, (emitter, subscribe) => {
-        emit = emitter;
+        };
+        callback();
         return () => {
             addDependency(subscribe);
             return value;
