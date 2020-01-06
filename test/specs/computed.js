@@ -244,6 +244,51 @@ describe('computed', () => {
         expect(secondSpy.callCount).to.equal(2);
     });
 
+    it('should support computed observables with computed dependencies', () => {
+        const foo = data('a');
+        const bar = data('b');
+        const baz = data('c');
+        const qux = data('d');
+
+        const fooBar = computed(() => foo() + bar());
+        const bazQux = computed(() => baz() + qux());
+        const value = computed(() => fooBar() + bazQux());
+
+        const fooBarSpy = sinon.spy();
+        const bazQuxSpy = sinon.spy();
+        const valueSpy = sinon.spy();
+
+        fooBar.subscribe(fooBarSpy);
+        bazQux.subscribe(bazQuxSpy);
+        value.subscribe(valueSpy);
+
+        expect(value()).to.equal('abcd');
+
+        foo('x');
+        expect(value()).to.equal('xbcd');
+        expect(fooBarSpy.callCount).to.equal(1);
+        expect(bazQuxSpy.callCount).to.equal(0);
+        expect(valueSpy.callCount).to.equal(1);
+
+        bar('y');
+        expect(value()).to.equal('xycd');
+        expect(fooBarSpy.callCount).to.equal(2);
+        expect(bazQuxSpy.callCount).to.equal(0);
+        expect(valueSpy.callCount).to.equal(2);
+
+        baz('z');
+        expect(value()).to.equal('xyzd');
+        expect(fooBarSpy.callCount).to.equal(2);
+        expect(bazQuxSpy.callCount).to.equal(1);
+        expect(valueSpy.callCount).to.equal(3);
+
+        qux('w');
+        expect(value()).to.equal('xyzw');
+        expect(fooBarSpy.callCount).to.equal(2);
+        expect(bazQuxSpy.callCount).to.equal(2);
+        expect(valueSpy.callCount).to.equal(4);
+    });
+
     it('should handle errors', () => {
 		const foo = data('a');
         const bar = data('b');

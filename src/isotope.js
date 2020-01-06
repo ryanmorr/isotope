@@ -1,6 +1,13 @@
 const tracker = [];
 const OBSERVABLE = Symbol('observable');
 
+function addDependency(subscribe) {
+    const fn = tracker[tracker.length - 1];
+    if (fn) {
+        subscribe(fn);
+    }
+}
+
 function observable(value, fn) {
     const subscribers = [];
     const subscribe = (fn, immediate = false) => {
@@ -17,8 +24,8 @@ function observable(value, fn) {
             };
         }
     };
-    const emit = (fn) => {
-        subscribers.slice().forEach(fn);
+    const emit = (newValue, oldValue) => {
+        subscribers.slice().forEach((fn) => fn(newValue, oldValue));
     };
     const callback = fn(emit, subscribe);
     callback[OBSERVABLE] = true;
@@ -35,13 +42,10 @@ export function data(value = null) {
             }
             const oldValue = value;
             value = newValue;
-            emit((fn) => fn(value, oldValue));
+            emit(value, oldValue);
             return value;
         } else {
-            const fn = tracker[tracker.length - 1];
-            if (fn) {
-                subscribe(fn);
-            }
+            addDependency(subscribe);
             return value;
         }
     });
@@ -63,13 +67,16 @@ export function computed(fn) {
             throw error;
         }
         if (emit) {
-            emit((fn) => fn(value, oldValue));
+            emit(value, oldValue);
         }
     };
     callback();
-    return observable(value, (emitter) => {
+    return observable(value, (emitter, subscribe) => {
         emit = emitter;
-        return () => value;
+        return () => {
+            addDependency(subscribe);
+            return value;
+        };
     });
 }
 
