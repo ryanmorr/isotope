@@ -55,17 +55,9 @@ export function computed(fn) {
     let value = null, emit;
     const callback = () => {
         tracker.push(callback);
-        let error;
         const oldValue = value;
-        try {
-            value = fn();
-        } catch (e) {
-            error = e;
-        }
+        value = fn();
         tracker.pop();
-        if (error) {
-            throw error;
-        }
         if (emit) {
             emit(value, oldValue);
         }
