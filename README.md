@@ -16,7 +16,7 @@ npm install @ryanmorr/isotope
 
 ## Usage
 
-Create an observable for a value, returns a function which can be used to get the observable's value by calling the function without any arguments and set the value by passing a single argument of any type:
+Create a basic store for a value:
 
 ``` javascript
 import { data } from '@ryanmorr/isotope';
@@ -28,21 +28,43 @@ count(1);
 count(); //=> 1
 ```
 
-Create a computed observable by passing a function which is called immediately and automatically re-runs when any depending observable's values are changed:
+Create a Redux-style reducer store for managing state:
+
+``` javascript
+import { reducer } from '@ryanmorr/isotope';
+
+const counter = reducer({count: 0}, (state, action) => {
+    switch (action.type) {
+        case 'increment':
+            return {count: state.count + 1};
+        case 'decrement':
+            return {count: state.count - 1};
+        default:
+            return state;
+    }
+});
+
+counter({type: 'increment'});
+counter(); //=> {count: 1}
+counter({type: 'decrement'});
+counter(); //=> {count: 0}
+```
+
+Create a computed store that is automatically updated when a depending store is updated:
 
 ``` javascript
 import { data, computed } from '@ryanmorr/isotope';
 
 const firstName = data('John');
 const lastName = data('Doe');
-const fullName = computed(() => `${firstName()} ${lastName()}`);
+const fullName = computed(firstName, lastName, (f, l) => `${f} ${l}`);
 
 fullName(); //=> "John Doe"
 firstName('Jane');
 fullName(); //=> "Jane Doe"
 ```
 
-Subscribe a callback function to a data or computed observable to be called when the value changes, returns a function which can be used to unsubscribe:
+Subscribe a callback function to a store to be called when updated, a function to unsubscribe is returned:
 
 ``` javascript
 import { data } from '@ryanmorr/isotope';
@@ -57,16 +79,6 @@ value(10);
 
 // Remove subscription
 unsubscribe();
-```
-
-Check if a function is a data or computed observable:
-
-``` javascript
-import { data, isObservable } from '@ryanmorr/isotope';
-
-const value = data();
-
-isObservable(value); //=> true
 ```
 
 ## License
