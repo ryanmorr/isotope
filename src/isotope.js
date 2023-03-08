@@ -37,3 +37,15 @@ export const derived = defineStore((get, set) => (...deps) => {
         value: get
     };
 });
+
+export const reducer = defineStore((get, set) => (initialState, reducer) => {
+    set(initialState);
+    return {
+        state: get,
+        dispatch: (action) => {
+            const prevState = get();
+            set(reducer(prevState, action), prevState);
+            return get();
+        }
+    };
+});
