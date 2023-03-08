@@ -1,39 +1,32 @@
 import defineStore from '@ryanmorr/define-store';
 
-export const data = defineStore((get, set) => (value = null) => {
+export const store = defineStore((get, set) => (value) => {
     set(value);
-    return (...args) => {
-        if (args.length === 1) {
-            const prevValue = get();
-            const nextValue = args[0];
-            if (nextValue === prevValue && (nextValue === null || typeof nextValue !== 'object')) {
-                return prevValue;
-            }
-            set(nextValue, prevValue);
-        }
-        return get();
+    const setValue = (val) => {
+        set(val, get());
+        return val;
+    };
+    return {
+        value: get,
+        set: setValue,
+        update: (callback) => setValue(callback(get()))
     };
 });
 
-export const reducer = defineStore((get, set) => (initialState, reducer) => {
-    set(initialState);
-    return (...args) => {
-        if (args.length === 1) {
-            const prevState = get();
-            set(reducer(prevState, args[0]), prevState);
-        }
-        return get();
-    };
-});
-
-export const computed = defineStore((get, set) => (...deps) => {
+export const derived = defineStore((get, set) => (...deps) => {
+    let initialized = false;
     const callback = deps.pop();
-    const setValue = () => {
-        const prevValue = get();
-        const args = deps.map((dep) => dep());
-        set(callback(...args), prevValue);
+    const values = [];
+    const sync = () => set(callback(...values), get());
+    deps.forEach((dep, i) => dep.subscribe((value) => {
+        values[i] = value;
+        if (initialized) {
+            sync();
+        }
+    }));
+    initialized = true;
+    sync();
+    return {
+        value: get
     };
-    deps.forEach((dep) => dep.subscribe(setValue));
-    setValue();
-    return get;
 });
