@@ -17,7 +17,14 @@ export const derived = defineStore((get, set) => (...deps) => {
     let initialized = false;
     const callback = deps.pop();
     const values = [];
-    const sync = () => set(callback(...values), get());
+    const sync = () => {
+        const result = callback(...values);
+        if (result && typeof result.then === 'function') {
+            result.then((value) => set(value, get()));
+        } else {
+            set(result, get());
+        }
+    };
     deps.forEach((dep, i) => dep.subscribe((value) => {
         values[i] = value;
         if (initialized) {
