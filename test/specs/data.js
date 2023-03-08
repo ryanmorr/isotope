@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { data } from '../../src/isotope';
+import { data } from '../../src/isotope.js';
 
 describe('data', () => {
     it('should return a default value of null', () => {

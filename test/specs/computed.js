@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { data, computed } from '../../src/isotope';
+import { data, computed } from '../../src/isotope.js';
 
 describe('computed', () => {
     it('should immediately compute a value', () => {

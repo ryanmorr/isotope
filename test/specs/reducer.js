@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { reducer } from '../../src/isotope';
+import { reducer } from '../../src/isotope.js';
 
 describe('reducer', () => {
     it('should return the initial state', () => {

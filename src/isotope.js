@@ -1,6 +1,6 @@
-import createStore from '@ryanmorr/create-store';
+import defineStore from '@ryanmorr/define-store';
 
-export const data = createStore((get, set) => (value = null) => {
+export const data = defineStore((get, set) => (value = null) => {
     set(value);
     return (...args) => {
         if (args.length === 1) {
@@ -15,7 +15,7 @@ export const data = createStore((get, set) => (value = null) => {
     };
 });
 
-export const reducer = createStore((get, set) => (initialState, reducer) => {
+export const reducer = defineStore((get, set) => (initialState, reducer) => {
     set(initialState);
     return (...args) => {
         if (args.length === 1) {
@@ -26,7 +26,7 @@ export const reducer = createStore((get, set) => (initialState, reducer) => {
     };
 });
 
-export const computed = createStore((get, set) => (...deps) => {
+export const computed = defineStore((get, set) => (...deps) => {
     const callback = deps.pop();
     const setValue = () => {
         const prevValue = get();
