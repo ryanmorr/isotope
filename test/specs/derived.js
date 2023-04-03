@@ -3,7 +3,7 @@ import sinon from 'sinon';
 import { store, derived } from '../../src/isotope.js';
 
 describe('derived', () => {
-    const wait = (callback) => new Promise((resolve) => setTimeout(() => callback ? resolve(callback()) : resolve()));
+    const wait = () => new Promise((resolve) => setTimeout(resolve, 20));
 
     it('should return the internal value derived from a store dependency', () => {
         const foo = store('foo');
@@ -101,11 +101,11 @@ describe('derived', () => {
         expect(valueSpy.callCount).to.equal(4);
     });
 
-    it('should support async derived stores by returning a promise', async () => {
+    it('should support async derived stores', async () => {
         const foo = store(5);
         const bar = store(10);
-        const computed = derived(foo, bar, (a, b) => {
-            return new Promise((resolve) => wait(() => resolve(a + b)));
+        const computed = derived(foo, bar, (a, b, set) => {
+            setTimeout(() => set(a + b), 10);
         });
     
         expect(computed.value()).to.equal(undefined);
@@ -135,38 +135,28 @@ describe('derived', () => {
         expect(spy.args[2][1]).to.equal(15);  
     });
 
-    it('should support async derived stores with async/await syntax', async () => {
-        const foo = store(3);
+    it('should support multiple calls to set in async derived stores', async () => {
+        const foo = store(50);
         const bar = store(20);
-        const computed = derived(foo, bar, async (a, b) => {
-            await wait();
-            return a + b;
+        const computed = derived(foo, bar, (a, b, set) => {
+            set(0);
+            setTimeout(() => set(a + b), 10);
         });
     
-        expect(computed.value()).to.equal(undefined);
+        expect(computed.value()).to.equal(0);
     
         const spy = sinon.spy();
         computed.subscribe(spy);
     
         expect(spy.callCount).to.equal(1);
-        expect(spy.args[0][0]).to.equal(undefined);
+        expect(spy.args[0][0]).to.equal(0);
         expect(spy.args[0][1]).to.equal(undefined);
     
         await wait();
 
-        expect(computed.value()).to.equal(23);
-        expect(spy.callCount).to.equal(2);
-        expect(spy.args[1][0]).to.equal(23);
-        expect(spy.args[1][1]).to.equal(undefined);
-        
-        foo.set(50);
-        expect(computed.value()).to.equal(23);
-
-        await wait();
-
         expect(computed.value()).to.equal(70);
-        expect(spy.callCount).to.equal(3);
-        expect(spy.args[2][0]).to.equal(70);
-        expect(spy.args[2][1]).to.equal(23);  
+        expect(spy.callCount).to.equal(2);
+        expect(spy.args[1][0]).to.equal(70);
+        expect(spy.args[1][1]).to.equal(0);
     });
 });
