@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { store, derived } from '../../src/isotope.js';
+import { store, reducer, derived } from '../../src/isotope.js';
 
 describe('derived', () => {
     const wait = () => new Promise((resolve) => setTimeout(resolve, 20));
@@ -65,6 +65,44 @@ describe('derived', () => {
         expect(spy.callCount).to.equal(3);
         expect(spy.args[2][0]).to.equal(220);
         expect(spy.args[2][1]).to.equal(120);
+    });
+
+    it('should support reducer dependencies', () => {
+        const foo = reducer({foo: 0}, (state) => ({foo: state.foo + 1}));
+        const bar = reducer({bar: 100}, (state) => ({bar: state.bar - 1}));
+
+        const data = derived(foo, bar, (fooValue, barValue) => {
+            return {
+                foo: fooValue.foo,
+                bar: barValue.bar
+            };
+        });
+
+        expect(data.value()).to.deep.equal({foo: 0, bar: 100});
+
+        foo.dispatch();
+        bar.dispatch();
+
+        expect(data.value()).to.deep.equal({foo: 1, bar: 99});
+    });
+
+    it('should support mixed dependencies', () => {
+        const foo = store(0);
+        const bar = reducer({bar: 100}, (state) => ({bar: state.bar - 1}));
+
+        const data = derived(foo, bar, (fooValue, barValue) => {
+            return {
+                foo: fooValue,
+                bar: barValue.bar
+            };
+        });
+
+        expect(data.value()).to.deep.equal({foo: 0, bar: 100});
+
+        foo.update((val) => val + 1);
+        bar.dispatch();
+
+        expect(data.value()).to.deep.equal({foo: 1, bar: 99});
     });
 
     it('should support derived dependencies', () => {
