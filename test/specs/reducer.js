@@ -7,7 +7,7 @@ describe('reducer', () => {
         const initialState = {foo: 'bar'};
         const foo = reducer(initialState);
 
-        expect(foo.state()).to.equal(initialState);
+        expect(foo.value()).to.equal(initialState);
     });
 
     it('should change state', () => {
@@ -20,16 +20,16 @@ describe('reducer', () => {
             }
         });
 
-        expect(count.state()).to.deep.equal({count: 0});
+        expect(count.value()).to.deep.equal({count: 0});
 
         expect(count.dispatch({type: 'increment'})).to.deep.equal({count: 1});
-        expect(count.state()).to.deep.equal({count: 1});
+        expect(count.value()).to.deep.equal({count: 1});
 
         expect(count.dispatch({type: 'increment'})).to.deep.equal({count: 2});
-        expect(count.state()).to.deep.equal({count: 2});
+        expect(count.value()).to.deep.equal({count: 2});
 
         expect(count.dispatch({type: 'decrement'})).to.deep.equal({count: 1});
-        expect(count.state()).to.deep.equal({count: 1});
+        expect(count.value()).to.deep.equal({count: 1});
     });
 
     it('should call a subscriber immediately when added', () => {
