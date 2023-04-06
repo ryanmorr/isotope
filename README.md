@@ -52,9 +52,9 @@ const counter = reducer({count: 0}, (state, action) => {
 });
 
 counter.dispatch({type: 'increment'});
-counter.state(); //=> {count: 1}
+counter.value(); //=> {count: 1}
 counter.dispatch({type: 'decrement'});
-counter.state(); //=> {count: 0}
+counter.value(); //=> {count: 0}
 ```
 
 Create a derived store that is based on the value of one or more other stores:
@@ -71,7 +71,7 @@ firstName.set('Jane');
 fullName.value(); //=> "Jane Doe"
 ```
 
-If the derived function returns a promise, it is treated as asynchronous, waiting for the promise to resolve before setting the new value:
+If the callback function defines an extra parameter in its signature, the derived store is treated as asynchronous. The callback function is provided a setter for the store's value and no longer relies on the return value:
 
 ```javascript
 import { store, derived } from '@ryanmorr/isotope';
@@ -79,8 +79,8 @@ import { store, derived } from '@ryanmorr/isotope';
 const param = store();
 
 // Perform an ajax request and notify subscribers with the results
-const results = derived(param, async (data) => {
-    return await fetch(`path/to/server/${encodeURIComponent(data)}`);
+const results = derived(param, (data, set) => {
+    fetch(`path/to/server/${encodeURIComponent(data)}`).then(set);
 });
 ```
 
