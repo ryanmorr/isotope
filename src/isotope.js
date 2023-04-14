@@ -46,3 +46,18 @@ export const reducer = defineStore((get, set) => (initialState, reducer) => {
         }
     };
 });
+
+export function effect(...deps) {
+    let initialized = false;
+    const callback = deps.pop();
+    const values = [];
+    const unsubscribers = deps.map((dep, i) => dep.subscribe((value) => {
+        values[i] = value;
+        if (initialized) {
+            callback(...values);
+        }
+    }));
+    initialized = true;
+    callback(...values);
+    return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
+}
