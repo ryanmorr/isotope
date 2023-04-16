@@ -66,30 +66,4 @@ describe('store', () => {
         expect(spy.args[2][0]).to.equal(120);
         expect(spy.args[2][1]).to.equal(20);
     });
-
-    it('should support destructuring methods', () => {
-        const foo = store(10);
-        const { value, set, update, subscribe } = foo;
-
-        expect(value()).to.equal(10);
-        
-        const spy = sinon.spy();
-        subscribe(spy);
-
-        expect(spy.callCount).to.equal(1);
-        expect(spy.args[0][0]).to.equal(10);
-        expect(spy.args[0][1]).to.equal(undefined);
-
-        expect(set(20)).to.equal(20);
-        expect(value()).to.equal(20);
-        expect(spy.callCount).to.equal(2);
-        expect(spy.args[1][0]).to.equal(20);
-        expect(spy.args[1][1]).to.equal(10);
-
-        expect(update((val) => val + 100)).to.equal(120);
-        expect(value()).to.equal(120);
-        expect(spy.callCount).to.equal(3);
-        expect(spy.args[2][0]).to.equal(120);
-        expect(spy.args[2][1]).to.equal(20);
-    });
 });

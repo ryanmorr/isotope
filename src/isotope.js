@@ -1,78 +1,52 @@
-import defineStore from '@ryanmorr/define-store';
+function Store(value) {
+    this._value = value;
+    this._subscribers = [];
+}
 
-export const store = defineStore((get, set) => (value) => {
-    set(value);
-    const setValue = (val) => {
-        set(val, get());
-        return val;
-    };
-    return {
-        value: get,
-        set: setValue,
-        update: (callback) => setValue(callback(get()))
-    };
-});
+Store.prototype.value = function() {
+    return this._value;
+};
 
-export const derived = defineStore((get, set) => (...deps) => {
-    let initialized = false;
-    const values = [];
-    const callback = deps.pop();
-    if (callback.length > deps.length) {
-        let count = 0;
-        const sync = (setter) => callback(...values.concat([setter]));
-        deps.forEach((dep, i) => dep.subscribe((value) => {
-            values[i] = value;
-            if (initialized) {
-                count++;
-                const n = count;
-                sync((val) => {
-                    if (count === n) {
-                        set(val, get());
-                    }
-                });
+Store.prototype.set = function(value) {
+    const prev = this._value;
+    this._value = value;
+    this._subscribers.slice().forEach((subscriber) => subscriber(value, prev));
+    return this._value;
+};
+
+Store.prototype.update = function(callback) {
+    return this.set(callback(this._value));
+}
+
+Store.prototype.subscribe = function(callback) {
+    if (!this._subscribers.includes(callback)) {
+        this._subscribers.push(callback);
+        callback(this._value);
+        return () => {
+            const index = this._subscribers.indexOf(callback);
+            if (index !== -1) {
+                this._subscribers.splice(index, 1);
             }
-        }));
-        initialized = true;
-        sync((val) => set(val, get()));
-    } else {
-        const sync = () => set(callback(...values), get());
-        deps.forEach((dep, i) => dep.subscribe((value) => {
-            values[i] = value;
-            if (initialized) {
-                sync();
-            }
-        }));
-        initialized = true;
-        sync();
+        };
     }
-    return {
-        value: get
-    };
-});
+};
 
-export const reducer = defineStore((get, set) => (initialState, reducer) => {
-    set(initialState);
-    return {
-        value: get,
-        dispatch: (action) => {
-            const prevState = get();
-            set(reducer(prevState, action), prevState);
-            return get();
-        }
-    };
-});
+Store.prototype.then = function(resolve) {
+    resolve(this._value);
+};
 
-export function effect(...deps) {
-    let initialized = false;
-    const callback = deps.pop();
-    const values = [];
-    const unsubscribers = deps.map((dep, i) => dep.subscribe((value) => {
-        values[i] = value;
-        if (initialized) {
-            callback(...values);
-        }
-    }));
-    initialized = true;
-    callback(...values);
-    return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
+Store.prototype.toString = function() {
+    return String(this._value);
+};
+
+Store.prototype.valueOf = function() {
+    return this._value;
+};
+
+Store.prototype.toJSON = function() {
+    return this._value;
+};
+
+export function store(value) {
+    return new Store(value);
 }
