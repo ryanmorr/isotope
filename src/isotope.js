@@ -15,21 +15,36 @@ export const store = defineStore((get, set) => (value) => {
 
 export const derived = defineStore((get, set) => (...deps) => {
     let initialized = false;
-    const callback = deps.pop();
-    const isAsync = callback.length > deps.length;
     const values = [];
-    const sync = () => isAsync ? callback(...values) : set(callback(...values), get());
-    deps.forEach((dep, i) => dep.subscribe((value) => {
-        values[i] = value;
-        if (initialized) {
-            sync();
-        }
-    }));
-    if (isAsync) {
-        values.push((val) => set(val, get()));
+    const callback = deps.pop();
+    if (callback.length > deps.length) {
+        let count = 0;
+        const sync = (setter) => callback(...values.concat([setter]));
+        deps.forEach((dep, i) => dep.subscribe((value) => {
+            values[i] = value;
+            if (initialized) {
+                count++;
+                const n = count;
+                sync((val) => {
+                    if (count === n) {
+                        set(val, get());
+                    }
+                });
+            }
+        }));
+        initialized = true;
+        sync((val) => set(val, get()));
+    } else {
+        const sync = () => set(callback(...values), get());
+        deps.forEach((dep, i) => dep.subscribe((value) => {
+            values[i] = value;
+            if (initialized) {
+                sync();
+            }
+        }));
+        initialized = true;
+        sync();
     }
-    initialized = true;
-    sync();
     return {
         value: get
     };

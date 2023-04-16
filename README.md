@@ -30,7 +30,7 @@ count.value(); //=> 0
 // Set the store value
 count.set(1);
 
-// Set the store value with a callback function
+// Set the store value with a function
 count.update((val) => val + 1);
 ```
 

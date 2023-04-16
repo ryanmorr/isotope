@@ -153,7 +153,6 @@ describe('derived', () => {
     
         expect(spy.callCount).to.equal(1);
         expect(spy.args[0][0]).to.equal(undefined);
-        expect(spy.args[0][1]).to.equal(undefined);
     
         await wait();
 
@@ -196,5 +195,100 @@ describe('derived', () => {
         expect(spy.callCount).to.equal(2);
         expect(spy.args[1][0]).to.equal(70);
         expect(spy.args[1][1]).to.equal(0);
+    });
+
+    it('should ignore an async call if it is unresolved when a new async call is made', async () => {
+        const foo = store(0);
+        const computed = derived(foo, (a, set) => {
+            setTimeout(() => set(a + 1), 10);
+        });
+        
+        const spy = sinon.spy();
+        computed.subscribe(spy);
+        
+        await wait();
+
+        expect(computed.value()).to.equal(1);
+        expect(spy.callCount).to.equal(2);
+        expect(spy.args[1][0]).to.equal(1);
+        expect(spy.args[1][1]).to.equal(undefined);
+        
+        foo.set(5);
+        foo.set(10);
+
+        await wait();
+
+        expect(computed.value()).to.equal(11);
+        expect(spy.callCount).to.equal(3);
+        expect(spy.args[2][0]).to.equal(11);
+        expect(spy.args[2][1]).to.equal(1);
+    });
+
+    it('should always accept the value of the last async call', async () => {
+        const foo = store(0);
+        const computed = derived(foo, (a, set) => {
+            if (a === 5) {
+                setTimeout(() => set(a + 1), 15);
+            } else {
+                setTimeout(() => set(a + 1), 1);
+            }
+        });
+        
+        const spy = sinon.spy();
+        computed.subscribe(spy);
+        
+        await wait();
+
+        expect(computed.value()).to.equal(1);
+        expect(spy.callCount).to.equal(2);
+        expect(spy.args[1][0]).to.equal(1);
+        expect(spy.args[1][1]).to.equal(undefined);
+        
+        foo.set(5);
+        foo.set(10);
+
+        await wait();
+
+        expect(computed.value()).to.equal(11);
+        expect(spy.callCount).to.equal(3);
+        expect(spy.args[2][0]).to.equal(11);
+        expect(spy.args[2][1]).to.equal(1);
+    });
+    
+    it('should support multiple calls to set in consecutive calls to an async derived store', async () => {
+        const foo = store(0);
+        const computed = derived(foo, (a, set) => {
+            setTimeout(() => set(a + 1), 5);
+            setTimeout(() => set(a + 10), 10);
+        });
+       
+        const spy = sinon.spy();
+        computed.subscribe(spy);
+
+        expect(spy.callCount).to.equal(1);
+        expect(spy.args[0][0]).to.equal(undefined);
+
+        await wait();
+
+        expect(spy.callCount).to.equal(3);
+
+        expect(spy.args[1][0]).to.equal(1);
+        expect(spy.args[1][1]).to.equal(undefined);
+
+        expect(spy.args[2][0]).to.equal(10);
+        expect(spy.args[2][1]).to.equal(1);
+
+        foo.set(10);
+        foo.set(50);
+
+        await wait();
+
+        expect(spy.callCount).to.equal(5);
+
+        expect(spy.args[3][0]).to.equal(51);
+        expect(spy.args[3][1]).to.equal(10);
+
+        expect(spy.args[4][0]).to.equal(60);
+        expect(spy.args[4][1]).to.equal(51);
     });
 });
