@@ -145,6 +145,24 @@ describe('store', () => {
         expect(spy3.callCount).to.equal(4);
     });
 
+    it('should return the new value within a subscriber', () => {
+        const foo = store('foo');
+
+        const spy = sinon.spy(() => {
+            if (spy.callCount === 1) {
+                expect(foo.value()).to.equal('foo');
+            } else {
+                expect(foo.value()).to.equal('bar');
+            }
+        });
+
+        foo.subscribe(spy);
+        expect(spy.callCount).to.equal(1);
+
+        foo.set('bar');
+        expect(spy.callCount).to.equal(2);
+    });
+
     it('should not set a new value if it is strically equal to the current value', () => {
         const foo = store(10);
         
