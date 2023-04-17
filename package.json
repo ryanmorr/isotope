@@ -43,8 +43,5 @@
     "rollup-plugin-generate-package-json": "^3.2.0",
     "sinon": "^15.0.1",
     "terser": "^5.16.3"
-  },
-  "dependencies": {
-    "@ryanmorr/define-store": "^1.0.0"
   }
 }
