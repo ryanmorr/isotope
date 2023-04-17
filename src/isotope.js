@@ -9,10 +9,12 @@ export class Store {
     }
 
     set(value) {
-        const prev = this.value();
-        this._value = value;
-        this._subscribers.slice().forEach((callback) => callback(value, prev));
-        return value;
+        const current = this.value();
+        if (value !== current) {
+            this._value = value;
+            this._subscribers.slice().forEach((callback) => callback(value, current));
+            return value;
+        }
     }
 
     subscribe(callback) {

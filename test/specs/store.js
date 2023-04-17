@@ -145,6 +145,23 @@ describe('store', () => {
         expect(spy3.callCount).to.equal(4);
     });
 
+    it('should not set a new value if it is strically equal to the current value', () => {
+        const foo = store(10);
+        
+        const spy = sinon.spy();
+        foo.subscribe(spy);
+
+        expect(spy.callCount).to.equal(1);
+
+        foo.set(10);
+
+        expect(spy.callCount).to.equal(1);
+
+        foo.update(() => 10);
+
+        expect(spy.callCount).to.equal(1);
+    });
+
     it('should support implicit type conversions', async () => {
         const foo = store(10);
         
