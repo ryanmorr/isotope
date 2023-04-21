@@ -54,6 +54,17 @@ class ValueStore extends Store {
     }
 }
 
+class ReducerStore extends Store {
+    constructor(initialState, reducer) {
+        super(initialState);
+        this._reducer = reducer;
+    }
+
+    dispatch(action) {
+        return super.set(this._reducer(this.value(), action));
+    }
+}
+
 class DerivedStore extends Store {
     constructor(deps, callback) {
         super();
@@ -95,23 +106,16 @@ class AsyncDerivedStore extends Store {
     }
 }
 
-class ReducerStore extends Store {
-    constructor(initialState, reducer) {
-        super(initialState);
-        this._reducer = reducer;
-    }
-
-    dispatch(action) {
-        return super.set(this._reducer(this.value(), action));
-    }
-}
-
 DerivedStore.prototype.set = undefined;
 AsyncDerivedStore.prototype.set = undefined;
 ReducerStore.prototype.set = undefined;
 
 export function store(value) {
     return new ValueStore(value);
+}
+
+export function reducer(initialState, reducer) {
+    return new ReducerStore(initialState, reducer);
 }
 
 export function derived(...deps) {
@@ -121,22 +125,3 @@ export function derived(...deps) {
     }
     return new DerivedStore(deps, callback);
 }
-
-export function reducer(initialState, reducer) {
-    return new ReducerStore(initialState, reducer);
-}
-
-export function effect(...deps) {
-    let initialized = false;
-    const callback = deps.pop();
-    const values = [];
-    const unsubscribers = deps.map((dep, i) => dep.subscribe((value) => {
-        values[i] = value;
-        if (initialized) {
-            callback(...values);
-        }
-    }));
-    initialized = true;
-    callback(...values);
-    return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
-} 
