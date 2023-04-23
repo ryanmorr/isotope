@@ -16,7 +16,7 @@ npm install @ryanmorr/isotope
 
 ## Usage
 
-Create a basic store for a value:
+Create a basic store that encapsulates a value:
 
 ``` javascript
 import { store } from '@ryanmorr/isotope';
@@ -36,7 +36,7 @@ count.update((val) => val + 1);
 
 Create a Redux-style reducer store for managing state:
 
-``` javascript
+```javascript
 import { reducer } from '@ryanmorr/isotope';
 
 // Create a store with an initial state and reducer function
@@ -57,7 +57,7 @@ counter.dispatch({type: 'decrement'});
 counter.value(); //=> {count: 0}
 ```
 
-Create a derived store that is based on the value of one or more other stores:
+Create a reactive store that is based on the value of one or more other stores:
 
 ``` javascript
 import { store, derived } from '@ryanmorr/isotope';
@@ -71,7 +71,7 @@ firstName.set('Jane');
 fullName.value(); //=> "Jane Doe"
 ```
 
-If the callback function defines an extra parameter in its signature, the derived store is treated as asynchronous. The callback function is provided a setter for the store's value and no longer relies on the return value:
+If the `derived` callback function defines an extra parameter in its signature, the derived store is treated as asynchronous. The callback function is provided a setter function for the store's value and no longer relies on the return value:
 
 ```javascript
 import { store, derived } from '@ryanmorr/isotope';
@@ -99,6 +99,20 @@ value.set('bar');
 
 // Remove subscription
 unsubscribe();
+```
+
+Use the `Store` superclass for type checking or extending to create custom stores:
+
+```javascript
+import { Store, store } from '@ryanmorr/isotope';
+
+// Type check stores
+store() instanceof Store; //=> true
+
+// Extend to add custom functionality
+class CustomStore extends Store {
+
+}
 ```
 
 ## License
