@@ -5,8 +5,11 @@
   "license": "Unlicense",
   "author": "Ryan Morr",
   "homepage": "https://github.com/ryanmorr/isotope",
-  "repository": "github:ryanmorr/isotope",
   "bugs": "https://github.com/ryanmorr/isotope/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ryanmorr/isotope.git"
+  },
   "keywords": [
     "javascript",
     "reactive",
