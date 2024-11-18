@@ -118,8 +118,15 @@ export function reducer(initialState, reducer) {
     return new ReducerStore(initialState, reducer);
 }
 
-export function derived(...deps) {
-    const callback = deps.pop();
+export function derived(...args) {
+    let deps, callback;
+    if (Array.isArray(args[0])) {
+        deps = args[0];
+        callback = args[1];
+    } else {
+        deps = args;
+        callback = args.pop();
+    }
     if (callback.length > deps.length) {
         return new AsyncDerivedStore(deps, callback);
     }

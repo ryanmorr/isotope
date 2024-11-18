@@ -291,4 +291,13 @@ describe('derived', () => {
         expect(spy.args[4][0]).to.equal(60);
         expect(spy.args[4][1]).to.equal(51);
     });
+
+    it('should support an array of dependencies', () => {
+        const foo = store('foo');
+        const bar = store('bar');
+        const baz = store('baz');
+        const computed = derived([foo, bar, baz], (foo, bar, baz) => foo + bar + baz);
+
+        expect(computed.value()).to.equal('foobarbaz');
+    });
 });
