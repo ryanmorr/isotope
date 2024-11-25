@@ -1,24 +1,27 @@
 export class Store {
+    #value;
+    #subscribers = [];
+
     constructor(value) {
-        this._value = value;
-        this._subscribers = [];
+        this.#value = value;
+        this.#subscribers = [];
     }
 
     value() {
-        return this._value;
+        return this.#value;
     }
 
     set(value) {
         const current = this.value();
         if (value !== current) {
-            this._value = value;
-            this._subscribers.slice().forEach((callback) => callback(value, current));
+            this.#value = value;
+            this.#subscribers.slice().forEach((callback) => callback(value, current));
             return value;
         }
     }
 
     subscribe(callback) {
-        const subscribers = this._subscribers;
+        const subscribers = this.#subscribers;
         if (!subscribers.includes(callback)) {
             subscribers.push(callback);
             callback(this.value());
@@ -55,13 +58,15 @@ class ValueStore extends Store {
 }
 
 class ReducerStore extends Store {
+    #reducer;
+
     constructor(initialState, reducer) {
         super(initialState);
-        this._reducer = reducer;
+        this.#reducer = reducer;
     }
 
     dispatch(action) {
-        return super.set(this._reducer(this.value(), action));
+        return super.set(this.#reducer(this.value(), action));
     }
 }
 
