@@ -296,8 +296,39 @@ describe('derived', () => {
         const foo = store('foo');
         const bar = store('bar');
         const baz = store('baz');
-        const computed = derived([foo, bar, baz], (foo, bar, baz) => foo + bar + baz);
 
+        const callback = sinon.spy(([foo, bar, baz]) => foo + bar + baz);
+
+        const computed = derived([foo, bar, baz], callback);
+
+        expect(callback.callCount).to.equal(1);
+        expect(callback.args[0][0]).to.be.an('array');
+        expect(callback.args[0][0]).to.have.lengthOf(3);
+        expect(callback.args[0][0][0]).to.equal(foo.value());
+        expect(callback.args[0][0][1]).to.equal(bar.value());
+        expect(callback.args[0][0][2]).to.equal(baz.value());
+        expect(computed.value()).to.equal('foobarbaz');
+    });
+
+    it('should support an array of dependencies in async derived stores', async () => {
+        const foo = store('foo');
+        const bar = store('bar');
+        const baz = store('baz');
+
+        const callback = sinon.spy(([foo, bar, baz], set) => {
+            setTimeout(() => set(foo + bar + baz), 10);
+        });
+
+        const computed = derived([foo, bar, baz], callback);
+
+        await wait();
+
+        expect(callback.callCount).to.equal(1);
+        expect(callback.args[0][0]).to.be.an('array');
+        expect(callback.args[0][0]).to.have.lengthOf(3);
+        expect(callback.args[0][0][0]).to.equal(foo.value());
+        expect(callback.args[0][0][1]).to.equal(bar.value());
+        expect(callback.args[0][0][2]).to.equal(baz.value());
         expect(computed.value()).to.equal('foobarbaz');
     });
 });

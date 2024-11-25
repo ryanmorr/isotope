@@ -66,11 +66,11 @@ class ReducerStore extends Store {
 }
 
 class DerivedStore extends Store {
-    constructor(deps, callback) {
+    constructor(deps, callback, isArray) {
         super();
         let initialized = false;
         const values = [];
-        const sync = () => super.set(callback(...values));
+        const sync = isArray ? () => super.set(callback(values)) : () => super.set(callback(...values));
         deps.forEach((dep, i) => dep.subscribe((value) => {
             values[i] = value;
             if (initialized) {
@@ -83,12 +83,12 @@ class DerivedStore extends Store {
 }
 
 class AsyncDerivedStore extends Store {
-    constructor(deps, callback) {
+    constructor(deps, callback, isArray) {
         super();
         let count = 0;
         let initialized = false;
         const values = [];
-        const sync = (setter) => callback(...values.concat([setter]));
+        const sync = isArray ? (setter) => callback(values, setter) : (setter) => callback(...values.concat([setter]));
         deps.forEach((dep, i) => dep.subscribe((value) => {
             values[i] = value;
             if (initialized) {
@@ -120,15 +120,17 @@ export function reducer(initialState, reducer) {
 
 export function derived(...args) {
     let deps, callback;
-    if (Array.isArray(args[0])) {
+    const isArray = Array.isArray(args[0]);
+    if (isArray) {
         deps = args[0];
         callback = args[1];
     } else {
         deps = args;
         callback = args.pop();
     }
-    if (callback.length > deps.length) {
-        return new AsyncDerivedStore(deps, callback);
+    const paramLength = callback.length;
+    if ((isArray && paramLength === 2) || paramLength > deps.length) {
+        return new AsyncDerivedStore(deps, callback, isArray);
     }
-    return new DerivedStore(deps, callback);
+    return new DerivedStore(deps, callback, isArray);
 }
