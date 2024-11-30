@@ -4,7 +4,6 @@ export class Store {
 
     constructor(value) {
         this.#value = value;
-        this.#subscribers = [];
     }
 
     value() {
