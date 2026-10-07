@@ -10,6 +10,13 @@ describe('reducer', () => {
         expect(foo.value()).to.equal(initialState);
     });
 
+    it('should not be able to explicitly set the internal value', () => {
+        const foo = reducer({foo: 'bar'});
+
+        expect(foo.set).to.equal(undefined);
+        expect(foo.update).to.equal(undefined);
+    });
+
     it('should change state', () => {
         const count = reducer({count: 0}, (state, action) => {
             switch (action.type) {
